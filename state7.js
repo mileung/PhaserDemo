@@ -1,4 +1,4 @@
-var endPoint1x, endPoint1y, endPoint2x, endPoint2y, swipeDirection, arrow, leeway = 60;
+var arrow, startPointX, startPointY, endPointX, endPointY, swipeDirection, leeway = 80;
 
 demo.state7 = function(){};
 demo.state7.prototype = {
@@ -9,42 +9,41 @@ demo.state7.prototype = {
         game.stage.backgroundColor = '#a6ff4d';
         addChangeStateEventListeners();
         
-        game.input.onDown.add(startSwipe);
-        game.input.onUp.add(getSwipeDirection);
-        
         arrow = game.add.sprite(centerX, centerY, 'arrow');
         arrow.anchor.setTo(0.5);
+        
+        game.input.onDown.add(this.startSwipe);
+        game.input.onUp.add(this.getSwipeDirection);
     },
-    update: function(){}
+    update: function(){},
+    startSwipe: function() {
+        startPointX = game.input.x;
+        startPointY = game.input.y;
+    },
+    getSwipeDirection: function() {
+        endPointX = game.input.x;
+        endPointY = game.input.y;
+        
+        if (Math.abs(endPointY - startPointY) < leeway && Math.abs(endPointX - startPointX) < leeway) {
+            return false;
+        }
+        
+        if (Math.abs(endPointY - startPointY) < Math.abs(endPointX - startPointX)) { 
+            console.log('horizontal');
+            if (endPointX > startPointX) {
+                swipeDirection = 90;
+            } else {
+                swipeDirection = 270;
+            }
+        } else {
+            console.log('vertical');
+            if (endPointY > startPointY) {
+                swipeDirection = 180;
+            } else {
+                swipeDirection = 0;
+            }
+        }
+        
+        arrow.angle = swipeDirection;
+    }
 };
-
-function startSwipe(){ 
-    endPoint1x = game.input.x;
-    endPoint1y = game.input.y;
-}
-
-function getSwipeDirection(){ //getSwipeDirection
-    endPoint2x = game.input.x;
-    endPoint2y = game.input.y;
-    
-    if (Math.abs(endPoint2y - endPoint1y) < leeway && Math.abs(endPoint2x - endPoint1x) < leeway) {
-        return false;
-    }
-    
-    if (Math.abs(endPoint2y - endPoint1y) < Math.abs(endPoint2x - endPoint1x)){
-        if (endPoint2x > endPoint1x) {
-            swipeDirection = 90;
-        } else {
-            swipeDirection = 270;
-        }
-    } else {
-        if (endPoint2y < endPoint1y) {
-            swipeDirection = 0;
-        } else {
-            swipeDirection = 180;
-        }
-    }
-    
-    arrow.angle = swipeDirection;
-    console.log('direction: ', swipeDirection);
-}
